@@ -327,15 +327,11 @@ class Master(object):
         """get and activate an slaver for data transfer"""
         try_count = 100
         while True:
-            if not try_count:
-                return None
+
             try:
                 dict_slaver = self.slaver_pool.popleft()
             except:
                 time.sleep(0.02)
-                try_count -= 1
-                if try_count % 10 == 0:
-                    log.error("!!NO SLAVER AVAILABLE!!  trying {}".format(try_count))
                 continue
 
             conn_slaver = dict_slaver["conn_slaver"]

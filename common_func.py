@@ -427,7 +427,7 @@ class CtrlPkg(object):
 
     """
     PACKAGE_SIZE = 2 ** 6  # 64 bytes
-    CTRL_PKG_TIMEOUT = None  # CtrlPkg recv timeout, in second
+    CTRL_PKG_TIMEOUT = 10  # CtrlPkg recv timeout, in second
 
     # CRC32 for SECRET_KEY and Reversed(SECRET_KEY)
     #   these values are set by `set_secretkey`
