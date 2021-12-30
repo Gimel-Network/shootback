@@ -4,6 +4,10 @@ import os
 import tempfile
 import queue
 import atexit
+
+from jsonrpcclient import request
+import requests
+
 from common_func import *
 
 _listening_sockets = []  # for close at exit
@@ -87,6 +91,7 @@ class Master(object):
         self.working_pool = working_pool or {}
 
         self.socket_bridge = SocketBridge()
+
 
         # a queue for customers who have connected to us,
         #   but not assigned a slaver yet
@@ -325,14 +330,32 @@ class Master(object):
 
     def _get_an_active_slaver(self):
         """get and activate an slaver for data transfer"""
-        try_count = 100
+        try_count = 10000
         while True:
 
             try:
                 dict_slaver = self.slaver_pool.popleft()
             except:
                 time.sleep(0.02)
+                try_count -= 1
+
+                if try_count == 0:
+                    try_count = 10000
+                    r = requests.post('0.0.0.0:5000',
+                                      json=request(
+                                          "tunnels.add",
+                                          params=[*self.communicate_addr]
+                                      ))
+                    print(r.json())
+
                 continue
+
+            r = requests.post('0.0.0.0:5000',
+                              json=request(
+                                   "tunnels.del",
+                                   params=[*self.communicate_addr]
+                              ))
+            print(r.json())
 
             conn_slaver = dict_slaver["conn_slaver"]
 
