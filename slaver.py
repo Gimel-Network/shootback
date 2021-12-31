@@ -208,7 +208,8 @@ class Slaver(object):
         # ----------- connecting to target ----------
         try:
             conn_target = self._connect_target()
-        except:
+        except Exception as e:
+            traceback.print_exc(e)
             log.error("unable to connect target")
             try_close(actual_conn)
 
@@ -359,7 +360,7 @@ def main(master, target, secret=None):
     global SPARE_SLAVER_TTL
 
     SPARE_SLAVER_TTL = 300
-    max_spare_count = 1
+    max_spare_count = 5
     include_ssl = False
 
     log.info("shootback {} slaver running".format(version_info()))

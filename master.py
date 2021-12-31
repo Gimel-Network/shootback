@@ -98,6 +98,9 @@ class Master(object):
         self.customer_binded = False
         self.slaver_binded = False
 
+        self.customer_addr_sock = customer_listen_addr
+        self.slaver_addr_sock = communicate_addr
+
         # a queue for customers who have connected to us,
         #   but not assigned a slaver yet
         self.pending_customers = queue.Queue()
@@ -229,8 +232,8 @@ class Master(object):
         ip = get_ip()
         params = {
             "addr": ip,
-            "slaver_port": self.communicate_addr[1],
-            "customer_port": self.customer_listen_addr[1]
+            "slaver_port": self.slaver_addr_sock[1],
+            "customer_port": self.customer_addr_sock[1]
         }
         r = requests.post(self.rpc, json=request("tunnels.add", params=params))
         print(r.json())
@@ -416,6 +419,7 @@ class Master(object):
     def _listen_slaver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try_bind_port(sock, self.communicate_addr)
+        self.slaver_addr_sock = sock.getsockname()
         self.slaver_binded = True
 
         if self.slaver_binded and self.customer_binded:
@@ -444,6 +448,7 @@ class Master(object):
     def _listen_customer(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try_bind_port(sock, self.customer_listen_addr)
+        self.customer_addr_sock = sock.getsockname()
         self.customer_binded = True
 
         if self.slaver_binded and self.customer_binded:
