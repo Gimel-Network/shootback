@@ -9,6 +9,7 @@ from jsonrpcclient import request
 import requests
 
 from common_func import *
+from gimelnet.misc.utils import get_ip
 
 _listening_sockets = []  # for close at exit
 __author__ = "Aploium <i@z.codes>"
@@ -277,7 +278,7 @@ class Master(object):
                 try_close(slaver["conn_slaver"])
                 del slaver["conn_slaver"]
 
-                params = [*self.communicate_addr]
+                params = (get_ip(), self.communicate_addr[1])
                 r = requests.post(self.rpc, json=request("tunnels.add", params=params))
                 print(r.json())
 
@@ -422,7 +423,7 @@ class Master(object):
                 fmt_addr(addr), len(self.slaver_pool)
             ))
 
-            params = [*self.communicate_addr]
+            params = (get_ip(), self.communicate_addr[1])
             r = requests.post(self.rpc, json=request("tunnels.del", params=params))
             print(r.json())
 
