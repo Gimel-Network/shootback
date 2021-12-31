@@ -258,6 +258,7 @@ class Master(object):
             slaver_count = len(self.slaver_pool)
             if not slaver_count:
                 log.warning("heart_beat_daemon: sorry, no slaver available, keep sleeping")
+                self.add_to_rpc_tunnels_pool()
                 # restore default delay if there is no slaver
                 delay = default_delay
                 continue
@@ -393,6 +394,7 @@ class Master(object):
                 conn_slaver = self._get_an_active_slaver()
             except:
                 log.error('error in getting slaver', exc_info=True)
+                self.add_to_rpc_tunnels_pool()
                 continue
             if conn_slaver is None:
                 log.warning("Closing customer[%s] because no available slaver found", addr_customer)
