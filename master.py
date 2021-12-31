@@ -95,6 +95,9 @@ class Master(object):
 
         self.rpc = 'http://0.0.0.0:5000'
 
+        self.customer_binded = False
+        self.slaver_binded = False
+
         # a queue for customers who have connected to us,
         #   but not assigned a slaver yet
         self.pending_customers = queue.Queue()
@@ -407,10 +410,12 @@ class Master(object):
     def _listen_slaver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try_bind_port(sock, self.communicate_addr)
+        self.slaver_binded = True
 
-        params = (get_ip(), self.communicate_addr[1])
-        r = requests.post(self.rpc, json=request("tunnels.add", params=params))
-        print(r.json())
+        if self.slaver_binded and self.customer_binded:
+            params = (get_ip(), self.communicate_addr[1])
+            r = requests.post(self.rpc, json=request("tunnels.add", params=params))
+            print(r.json())
 
         sock.listen(10)
         _listening_sockets.append(sock)
@@ -431,9 +436,17 @@ class Master(object):
             r = requests.post(self.rpc, json=request("tunnels.del", params=params))
             print(r.json())
 
+    # noinspection DuplicatedCode
     def _listen_customer(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try_bind_port(sock, self.customer_listen_addr)
+        self.customer_binded = True
+
+        if self.slaver_binded and self.customer_binded:
+            params = (get_ip(), self.communicate_addr[1])
+            r = requests.post(self.rpc, json=request("tunnels.add", params=params))
+            print(r.json())
+
         sock.listen(20)
         _listening_sockets.append(sock)
         log.info("Listening for customers: {}".format(
