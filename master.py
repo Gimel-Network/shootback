@@ -92,7 +92,7 @@ class Master(object):
 
         self.socket_bridge = SocketBridge()
 
-        self.rpc = '0.0.0.0:5000'
+        self.rpc = 'http://0.0.0.0:5000'
 
 
         # a queue for customers who have connected to us,
