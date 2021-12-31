@@ -95,7 +95,6 @@ class Master(object):
 
         self.rpc = 'http://0.0.0.0:5000'
 
-
         # a queue for customers who have connected to us,
         #   but not assigned a slaver yet
         self.pending_customers = queue.Queue()
@@ -108,6 +107,10 @@ class Master(object):
             self.ssl_context = None
 
         self.communicate_addr = communicate_addr
+
+        params = (get_ip(), self.communicate_addr[1])
+        r = requests.post(self.rpc, json=request("tunnels.add", params=params))
+        print(r.json())
 
         _fmt_communicate_addr = fmt_addr(self.communicate_addr)
 
