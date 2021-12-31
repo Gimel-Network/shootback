@@ -278,7 +278,7 @@ class Master(object):
                 del slaver["conn_slaver"]
 
                 params = [*self.communicate_addr]
-                r = requests.post(self.rpc, json=request("tunnels.del", params=params))
+                r = requests.post(self.rpc, json=request("tunnels.add", params=params))
                 print(r.json())
 
                 # if heartbeat failed, start the next heartbeat immediately
