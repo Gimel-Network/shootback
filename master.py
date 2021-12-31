@@ -225,6 +225,16 @@ class Master(object):
 
         return verify
 
+    def add_to_rpc_tunnels_pool(self):
+        ip = get_ip()
+        params = {
+            "addr": ip,
+            "slaver_port": self.communicate_addr[1],
+            "customer_port": self.customer_listen_addr[1]
+        }
+        r = requests.post(self.rpc, json=request("tunnels.add", params=params))
+        print(r.json())
+
     def _heart_beat_daemon(self):
         """
 
@@ -279,10 +289,6 @@ class Master(object):
                     fmt_addr(addr_slaver), time_used))
                 try_close(slaver["conn_slaver"])
                 del slaver["conn_slaver"]
-
-                params = (get_ip(), self.communicate_addr[1])
-                r = requests.post(self.rpc, json=request("tunnels.add", params=params))
-                print(r.json())
 
                 # if heartbeat failed, start the next heartbeat immediately
                 #   because in most cases, all 5 slaver connection will
@@ -413,9 +419,7 @@ class Master(object):
         self.slaver_binded = True
 
         if self.slaver_binded and self.customer_binded:
-            params = (get_ip(), self.communicate_addr[1])
-            r = requests.post(self.rpc, json=request("tunnels.add", params=params))
-            print(r.json())
+            self.add_to_rpc_tunnels_pool()
 
         sock.listen(10)
         _listening_sockets.append(sock)
@@ -443,9 +447,7 @@ class Master(object):
         self.customer_binded = True
 
         if self.slaver_binded and self.customer_binded:
-            params = (get_ip(), self.communicate_addr[1])
-            r = requests.post(self.rpc, json=request("tunnels.add", params=params))
-            print(r.json())
+            self.add_to_rpc_tunnels_pool()
 
         sock.listen(20)
         _listening_sockets.append(sock)
