@@ -92,6 +92,8 @@ class Master(object):
 
         self.socket_bridge = SocketBridge()
 
+        self.rpc = '0.0.0.0:5000'
+
 
         # a queue for customers who have connected to us,
         #   but not assigned a slaver yet
@@ -275,6 +277,10 @@ class Master(object):
                 try_close(slaver["conn_slaver"])
                 del slaver["conn_slaver"]
 
+                params = [*self.communicate_addr]
+                r = requests.post(self.rpc, json=request("tunnels.del", params=params))
+                print(r.json())
+
                 # if heartbeat failed, start the next heartbeat immediately
                 #   because in most cases, all 5 slaver connection will
                 #   fall and re-connect in the same time
@@ -332,30 +338,16 @@ class Master(object):
         """get and activate an slaver for data transfer"""
         try_count = 10000
         while True:
-
+            if not try_count:
+                return None
             try:
                 dict_slaver = self.slaver_pool.popleft()
             except:
                 time.sleep(0.02)
                 try_count -= 1
-
-                if try_count == 0:
-                    try_count = 10000
-                    r = requests.post('0.0.0.0:5000',
-                                      json=request(
-                                          "tunnels.add",
-                                          params=[*self.communicate_addr]
-                                      ))
-                    print(r.json())
-
+                if try_count % 10 == 0:
+                    log.error("!!NO SLAVER AVAILABLE!!  trying {}".format(try_count))
                 continue
-
-            r = requests.post('0.0.0.0:5000',
-                              json=request(
-                                   "tunnels.del",
-                                   params=[*self.communicate_addr]
-                              ))
-            print(r.json())
 
             conn_slaver = dict_slaver["conn_slaver"]
 
@@ -425,9 +417,14 @@ class Master(object):
                 "addr_slaver": addr,
                 "conn_slaver": conn,
             })
+
             log.info("Got slaver {} Total: {}".format(
                 fmt_addr(addr), len(self.slaver_pool)
             ))
+
+            params = [*self.communicate_addr]
+            r = requests.post(self.rpc, json=request("tunnels.del", params=params))
+            print(r.json())
 
     def _listen_customer(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

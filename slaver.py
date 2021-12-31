@@ -2,7 +2,7 @@
 # coding=utf-8
 from __future__ import print_function, unicode_literals, division, absolute_import
 
-from common_func import *
+from shootback.common_func import *
 
 __author__ = "Aploium <i@z.codes>"
 __website__ = "https://github.com/aploium/shootback"
@@ -44,6 +44,7 @@ class Slaver(object):
 
     def _connect_master(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print(self.communicate_addr)
         sock.connect(self.communicate_addr)
 
         self.spare_slaver_pool[sock.getsockname()] = {
@@ -257,6 +258,7 @@ class Slaver(object):
             else:
                 spare_delay = 0.0
 
+
             try:
                 conn_slaver = self._connect_master()
             except Exception as e:
@@ -353,6 +355,24 @@ Tips: ANY service using TCP is shootback-able.  HTTP/FTP/Proxy/SSH/VNC/...
     return parser.parse_args()
 
 
+def main(master, target, secret=None):
+    global SPARE_SLAVER_TTL
+
+    SPARE_SLAVER_TTL = 300
+    max_spare_count = 1
+    include_ssl = False
+
+    log.info("shootback {} slaver running".format(version_info()))
+    log.info("author: {}  site: {}".format(__author__, __website__))
+    log.info("Master: {}".format(fmt_addr(master)))
+    log.info("Target: {}".format(fmt_addr(target)))
+
+    # communicate_addr = ("localhost", 12345)
+    # target_addr = ("93.184.216.34", 80)  # www.example.com
+
+    run_slaver(master, target, max_spare_count=max_spare_count, ssl=include_ssl)
+
+
 def main_slaver():
     global SPARE_SLAVER_TTL
 
@@ -390,6 +410,7 @@ def main_slaver():
                max_spare_count=max_spare_count,
                ssl=args.ssl,
                )
+
 
 
 if __name__ == '__main__':
