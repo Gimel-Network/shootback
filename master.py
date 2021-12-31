@@ -108,10 +108,6 @@ class Master(object):
 
         self.communicate_addr = communicate_addr
 
-        params = (get_ip(), self.communicate_addr[1])
-        r = requests.post(self.rpc, json=request("tunnels.add", params=params))
-        print(r.json())
-
         _fmt_communicate_addr = fmt_addr(self.communicate_addr)
 
         if slaver_pool:
@@ -411,6 +407,11 @@ class Master(object):
     def _listen_slaver(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try_bind_port(sock, self.communicate_addr)
+
+        params = (get_ip(), self.communicate_addr[1])
+        r = requests.post(self.rpc, json=request("tunnels.add", params=params))
+        print(r.json())
+
         sock.listen(10)
         _listening_sockets.append(sock)
         log.info("Listening for slavers: {}".format(
