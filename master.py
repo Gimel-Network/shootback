@@ -442,7 +442,7 @@ class Master(object):
                 fmt_addr(addr), len(self.slaver_pool)
             ))
 
-            params = (get_ip(), self.customer_addr_sock[1])
+            params = (get_ip(), self.slaver_addr_sock[1])
             r = requests.post(self.rpc, json=request("tunnels.del", params=params))
             print(r.json())
 
