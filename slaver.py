@@ -346,7 +346,7 @@ Tips: ANY service using TCP is shootback-able.  HTTP/FTP/Proxy/SSH/VNC/...
     parser.add_argument("--ttl", default=300, type=int, dest="SPARE_SLAVER_TTL",
                         help="standing-by slaver's TTL, default is 300. "
                              "this value is optimized for most cases")
-    parser.add_argument("--max-standby", default=5, type=int, dest="max_spare_count",
+    parser.add_argument("--max-standby", default=1, type=int, dest="max_spare_count",
                         help="max standby slaver TCP connections count, default is 5. "
                              "which is enough for more than 800 concurrency. "
                              "while working connections are always unlimited")
@@ -411,7 +411,6 @@ def main_slaver():
                max_spare_count=max_spare_count,
                ssl=args.ssl,
                )
-
 
 
 if __name__ == '__main__':
