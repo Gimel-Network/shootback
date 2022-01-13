@@ -9,7 +9,8 @@ from jsonrpcclient import request
 import requests
 
 from common_func import *
-from gimelnet.misc.utils import get_ip
+from gimel.network.utils import get_ip
+
 
 _listening_sockets = []  # for close at exit
 __author__ = "Aploium <i@z.codes>"
